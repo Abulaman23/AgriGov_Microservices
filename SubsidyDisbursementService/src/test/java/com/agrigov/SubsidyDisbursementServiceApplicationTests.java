@@ -1,0 +1,13 @@
+package com.agrigov;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class SubsidyDisbursementServiceApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
