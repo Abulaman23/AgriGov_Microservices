@@ -36,6 +36,7 @@ public class SubsidyServiceImpl implements SubsidyService {
 
 		// Duplicate check
 		if (subsidyRepository.existsBySchemeIdAndFarmerId(schemeId, farmerId)) {
+			log.warn("Duplicate subsidy found | schemeId={} farmerId={}", schemeId, farmerId);
 			throw new ConflictException("Subsidy already exists for this farmer under this scheme");
 		}
 
@@ -43,6 +44,7 @@ public class SubsidyServiceImpl implements SubsidyService {
 		SchemeRequestDTO application;
 		try {
 			application = schemeClient.getApplication(schemeId, farmerId);
+			log.info("Scheme application found | schemeId={} farmerId={}", schemeId, farmerId);
 		} catch (Exception ex) {
 			throw new ResourceNotFoundException(
 					"No scheme application found for schemeId=" + schemeId + " farmerId=" + farmerId);
@@ -55,23 +57,28 @@ public class SubsidyServiceImpl implements SubsidyService {
 		subsidy.setStatus(status);
 
 		Subsidy saved = subsidyRepository.save(subsidy);
+		log.info("Subsidy created successfully | subsidyId={}", saved.getSubsidyId());
 		return toResponse(saved);
 	}
 
 	@Override
 	public List<SubsidyResponse> getAll() {
+		log.info("Fetching all subsidies");
 		return subsidyRepository.findAll().stream().map(this::toResponse).toList();
 	}
 
 	@Override
 	public SubsidyResponse getById(Long subsidyId) {
+		log.info("Fetching subsidy by ID | subsidyId={}", subsidyId);
 		Subsidy subsidy = subsidyRepository.findById(subsidyId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subsidy not found: " + subsidyId));
+		log.warn("Subsidy not found | subsidyId={}", subsidyId);
 		return toResponse(subsidy);
 	}
 
 	@Override
 	public SubsidyResponse update(Long subsidyId, SubsidyRequest request) {
+		log.info("Updating subsidy | subsidyId={}", subsidyId);
 		Subsidy subsidy = subsidyRepository.findById(subsidyId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subsidy not found: " + subsidyId));
 
@@ -83,9 +90,11 @@ public class SubsidyServiceImpl implements SubsidyService {
 
 	@Override
 	public void delete(Long subsidyId) {
+		log.info("Deleting subsidy | subsidyId={}", subsidyId);
 		if (!subsidyRepository.existsById(subsidyId)) {
 			throw new ResourceNotFoundException("Subsidy not found: " + subsidyId);
 		}
+		log.info("Subsidy deleted successfully | subsidyId={}", subsidyId);
 		subsidyRepository.deleteById(subsidyId);
 	}
 
